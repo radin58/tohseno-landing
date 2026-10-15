@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tohseno — Person-to-Person Software Network</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            bgDark: '#08090D',
+            cardBg: '#11131C',
+            borderDark: '#202436',
+            accentCyan: '#00F0FF',
+            accentOrange: '#FF5C00',
+            textMuted: '#8E95B0',
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      background-color: #08090D;
+      color: #F3F4F6;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+    .font-mono { font-family: 'JetBrains Mono', monospace; }
+    
+    /* Background Grid */
+    .bg-grid {
+      background-size: 30px 30px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    }
+
+    /* Glow Effects */
+    .glow-cyan {
+      box-shadow: 0 0 30px -5px rgba(0, 240, 255, 0.3);
+    }
+    .glow-orange {
+      box-shadow: 0 0 30px -5px rgba(255, 92, 0, 0.3);
+    }
+    
+    /* 3D Phone Tilt */
+    .phone-container {
+      perspective: 1000px;
+    }
+    .phone-mockup {
+      transform: rotateY(-12deg) rotateX(8deg);
+      transition: transform 0.5s ease;
+    }
+    .phone-container:hover .phone-mockup {
+      transform: rotateY(0deg) rotateX(0deg) scale(1.02);
+    }
+
+    /* Glassmorphism */
+    .glass-card {
+      background: rgba(17, 19, 28, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid #202436;
+    }
+
+    /* Smooth Drawer Transition */
+    .drawer-open {
+      transform: translateX(0) !important;
+    }
+  </style>
+</head>
+<body class="bg-bgDark bg-grid min-h-screen relative flex flex-col justify-between">
+
+  <!-- ==================== HEADER ==================== -->
+  <header class="sticky top-0 z-40 bg bg-bgDark/80 backdrop-blur-md border-b border-borderDark px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="#" class="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
+        <span class="w-3 h-3 rounded-full bg-accentCyan inline-block animate-pulse"></span>
+        tohseno
+      </a>
+      <span class="font-mono text-xs px-2 py-0.5 rounded-full bg-accentCyan/10 text-accentCyan border border-accentCyan/20">p2p-v0.1</span>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <button onclick="simulateWallet()" id="walletBtn" class="hidden md:flex font-mono text-xs px-3 py-1.5 rounded-lg border border-borderDark bg-cardBg hover:border-accentCyan/50 transition-all items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-textMuted" id="walletDot"></span>
+        <span id="walletText">Connect Wallet</span>
+      </button>
+
+      <a href="#download" class="hidden md:inline-flex text-xs font-semibold px-4 py-2 rounded-lg bg-accentOrange hover:bg-orange-600 text-white transition-all shadow-lg glow-orange">
+        Get Mac App ↗
+      </a>
+
+      <!-- Hamburger Button -->
+      <button onclick="toggleMenu()" class="p-2 rounded-lg bg-cardBg border border-borderDark hover:border-accentCyan/50 transition-all focus:outline-none z-50">
+        <svg id="hamburgerIcon" class="w-6 h-6 text-white transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ==================== SLIDE-OUT DRAWER MENU ==================== -->
+  <div id="drawerMenu" class="fixed inset-y-0 right-0 z-50 w-80 bg-cardBg border-l border-borderDark p-6 shadow-2xl transition-transform duration-300 translate-x-full flex flex-col justify-between">
+    <div>
+      <div class="flex justify-between items-center pb-6 border-b border-borderDark">
+        <span class="font-mono text-xs uppercase text-textMuted tracking-wider">Navigation</span>
+        <button onclick="toggleMenu()" class="text-textMuted hover:text-white">
+          ✕
+        </button>
+      </div>
+
+      <div class="mt-6 space-y-6">
+        <div>
+          <span class="font-mono text-xs text-accentCyan block mb-2 uppercase">Product</span>
+          <div class="space-y-2">
+            <a href="#how-it-works" onclick="toggleMenu()" class="block text-sm text-gray-300 hover:text-white">How It Works</a>
+            <a href="#requirements" onclick="toggleMenu()" class="block text-sm text-gray-300 hover:text-white">Requirements</a>
+            <a href="#faq" onclick="toggleMenu()" class="block text-sm text-gray-300 hover:text-white">FAQ</a>
+          </div>
+        </div>
+
+        <div>
+          <span class="font-mono text-xs text-accentOrange block mb-2 uppercase">Resources</span>
+          <div class="space-y-2">
+            <a href="https://github.com/jpfraneto/tohseno" target="_blank" class="block text-sm text-gray-300 hover:text-white">GitHub Repository ↗</a>
+            <a href="#security" onclick="toggleMenu()" class="block text-sm text-gray-300 hover:text-white">Security & Zero-Trust</a>
+          </div>
+        </div>
+
+        <div>
+          <span class="font-mono text-xs text-accentCyan block mb-2 uppercase">Token</span>
+          <div class="space-y-2">
+            <a href="#tokenomics" onclick="toggleMenu()" class="block text-sm text-gray-300 hover:text-white">$TOHSENO Info & Contracts</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="pt-6 border-t border-borderDark space-y-3">
+      <a href="#download" onclick="toggleMenu()" class="block text-center text-xs font-semibold py-2.5 rounded-lg bg-accentOrange text-white glow-orange">
+        Download Mac App ↗
+      </a>
+      <p class="text-[10px] text-center text-textMuted font-mono">Software belongs to its builders.</p>
+    </div>
+  </div>
+
+  <main class="max-w-6xl mx-auto px-6 py-12 space-y-24">
+
+    <!-- ==================== HERO SECTION ==================== -->
+    <section class="grid lg:grid-cols-2 gap-12 items-center">
+      <div class="space-y-6">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cardBg border border-borderDark text-xs font-mono text-accentCyan">
+          <span class="w-2 h-2 rounded-full bg-accentCyan animate-ping"></span>
+          Open-Source Person-to-Person iOS Network
+        </div>
+
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
+          Say what should exist. <br>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-accentCyan to-blue-500">Hold it in your hand.</span>
+        </h1>
+
+        <p class="text-base text-textMuted leading-relaxed">
+          Tohseno turns a single sentence into a native SwiftUI app running on your iPhone via your Mac. Zero cloud, zero middlemen, 100% local build.
+        </p>
+
+        <div class="flex flex-wrap gap-4 pt-2">
+          <a href="#download" class="px-6 py-3 rounded-xl bg-accentOrange hover:bg-orange-600 text-white font-semibold text-sm transition-all shadow-lg glow-orange">
+            Get Mac App ↗
+          </a>
+          <a href="https://github.com/jpfraneto/tohseno" target="_blank" class="px-6 py-3 rounded-xl bg-cardBg border border-borderDark hover:border-accentCyan/50 text-white font-semibold text-sm transition-all flex items-center gap-2">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            Explore Source Code
+          </a>
+        </div>
+      </div>
+
+      <!-- 3D iPhone Mockup -->
+      <div class="phone-container flex justify-center py-6">
+        <div class="phone-mockup relative w-[280px] h-[560px] bg-black rounded-[48px] p-3 border-4 border-gray-800 shadow-2xl glow-cyan">
+          <!-- Dynamic Island -->
+          <div class="absolute top-5 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-full z-20 flex items-center justify-between px-2">
+            <span class="w-2 h-2 rounded-full bg-accentCyan animate-pulse"></span>
+            <span class="text-[9px] font-mono text-gray-400">10:52</span>
+          </div>
+
+          <!-- App Screen -->
+          <div class="w-full h-full bg-cardBg rounded-[36px] overflow-hidden pt-12 p-4 flex flex-col justify-between border border-borderDark/50">
+            <div class="space-y-4">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-mono text-accentCyan">TOHSENO • LOCAL BUILD</span>
+                <span class="text-[10px] font-mono text-accentOrange">v0.1</span>
+              </div>
+
+              <div class="space-y-1">
+                <h3 class="text-xl font-bold text-white">21 Quiet Days</h3>
+                <p class="text-xs text-textMuted">Ten minutes of silence. Every day. No streak shame.</p>
+              </div>
+
+              <!-- Habit Grid Demo -->
+              <div class="bg-bgDark p-3 rounded-xl border border-borderDark space-y-2">
+                <div class="flex justify-between text-xs font-mono">
+                  <span class="text-textMuted">DAY <strong class="text-white">5</strong>/21</span>
+                  <span class="text-accentOrange">07:37</span>
+                </div>
+                <div class="grid grid-cols-7 gap-1">
+                  <div class="h-3 rounded-sm bg-accentCyan"></div>
+                  <div class="h-3 rounded-sm bg-accentCyan"></div>
+                  <div class="h-3 rounded-sm bg-accentCyan"></div>
+                  <div class="h-3 rounded-sm bg-accentCyan"></div>
+                  <div class="h-3 rounded-sm bg-accentCyan/30"></div>
+                  <div class="h-3 rounded-sm bg-bgDark border border-borderDark"></div>
+                  <div class="h-3 rounded-sm bg-bgDark border border-borderDark"></div>
+                </div>
+              </div>
+
+              <div class="p-3 bg-cardBg rounded-xl border border-borderDark text-[11px] text-textMuted font-mono">
+                "An app that asks me to sit in silence for ten minutes a day, for 21 days."
+              </div>
+            </div>
+
+            <button class="w-full py-2.5 rounded-xl bg-white text-black font-bold text-xs shadow-md">
+              Begin today's silence
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== SECURITY & ZERO-TRUST ==================== -->
+    <section id="security" class="glass-card p-8 rounded-2xl space-y-6 border-l-4 border-l-accentCyan">
+      <div class="flex items-center gap-3">
+        <span class="text-accentCyan font-mono text-sm">SECURITY // ZERO-TRUST</span>
+        <h2 class="text-2xl font-bold text-white">Radical Honesty & Local Privacy</h2>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="space-y-2">
+          <h4 class="text-white font-semibold text-sm">Free Apple Personal Team</h4>
+          <p class="text-xs text-textMuted">Your Apple ID gives you a Personal Team ID for local signing. No paid developer account needed.</p>
+        </div>
+        <div class="space-y-2">
+          <h4 class="text-white font-semibold text-sm">Local Xcode Toolchain</h4>
+          <p class="text-xs text-textMuted">Every build and signature happens on your own machine. Nothing compiles in the cloud.</p>
+        </div>
+        <div class="space-y-2">
+          <h4 class="text-white font-semibold text-sm">Direct Local Transfer</h4>
+          <p class="text-xs text-textMuted">Install apps directly via Wi-Fi or USB connection. Your source code never touches third-party servers.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== HOW IT WORKS ==================== -->
+    <section id="how-it-works" class="space-y-8">
+      <div class="text-center space-y-2">
+        <span class="font-mono text-xs text-accentCyan uppercase">Step-by-Step Flow</span>
+        <h2 class="text-3xl font-extrabold text-white">How Tohseno Operates</h2>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="glass-card p-6 rounded-xl space-y-4 hover:border-accentCyan/50 transition-all">
+          <span class="w-8 h-8 rounded-lg bg-accentCyan/10 text-accentCyan font-mono text-sm font-bold flex items-center justify-center">01</span>
+          <h3 class="text-lg font-bold text-white">Install Mac App</h3>
+          <p class="text-xs text-textMuted">Download and run Tohseno Desktop on macOS 14+ with Xcode installed.</p>
+        </div>
+
+        <div class="glass-card p-6 rounded-xl space-y-4 hover:border-accentOrange/50 transition-all">
+          <span class="w-8 h-8 rounded-lg bg-accentOrange/10 text-accentOrange font-mono text-sm font-bold flex items-center justify-center">02</span>
+          <h3 class="text-lg font-bold text-white">Connect iPhone</h3>
+          <p class="text-xs text-textMuted">Enable Developer Mode on your iPhone and pair it with your Mac via cable or Wi-Fi.</p>
+        </div>
+
+        <div class="glass-card p-6 rounded-xl space-y-4 hover:border-accentCyan/50 transition-all">
+          <span class="w-8 h-8 rounded-lg bg-accentCyan/10 text-accentCyan font-mono text-sm font-bold flex items-center justify-center">03</span>
+          <h3 class="text-lg font-bold text-white">Prompt & Build</h3>
+          <p class="text-xs text-textMuted">Describe what you want to build. Tohseno generates SwiftUI and installs it on your phone instantly.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TOKENOMICS ==================== -->
+    <section id="tokenomics" class="glass-card p-8 rounded-2xl space-y-6">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-borderDark pb-6">
+        <div>
+          <span class="font-mono text-xs text-accentOrange uppercase">Community Token</span>
+          <h2 class="text-3xl font-extrabold text-white">$TOHSENO Tokenomics</h2>
+        </div>
+        <div class="font-mono text-xs text-textMuted bg-bgDark px-4 py-2 rounded-lg border border-borderDark">
+          Network: <strong class="text-white">Base</strong> | Supply: <strong class="text-white">~1,000,000,000</strong>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        <p class="text-xs font-mono text-textMuted">OFFICIAL CONTRACT ADDRESSES</p>
+        
+        <div class="space-y-3">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-bgDark p-3 rounded-xl border border-borderDark gap-2">
+            <div>
+              <span class="text-xs font-bold text-white block">Pons V1 — TOHSENO/WETH</span>
+              <span class="font-mono text-[11px] text-textMuted break-all">0xc0adb6de6c64d8244ab465adf681c287758bf930</span>
+            </div>
+            <button onclick="copyToClipboard('0xc0adb6de6c64d8244ab465adf681c287758bf930')" class="font-mono text-xs px-3 py-1.5 rounded-lg bg-cardBg hover:bg-accentCyan hover:text-black transition-all">
+              Copy
+            </button>
+          </div>
+
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between bg-bgDark p-3 rounded-xl border border-borderDark gap-2">
+            <div>
+              <span class="text-xs font-bold text-white block">Uniswap V4</span>
+              <span class="font-mono text-[11px] text-textMuted break-all">0x948d7073945be4bbaf6144422a3de7b3aa62c67b637c78dc5c961a29f1133af7</span>
+            </div>
+            <button onclick="copyToClipboard('0x948d7073945be4bbaf6144422a3de7b3aa62c67b637c78dc5c961a29f1133af7')" class="font-mono text-xs px-3 py-1.5 rounded-lg bg-cardBg hover:bg-accentCyan hover:text-black transition-all">
+              Copy
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== FAQ ACCORDION ==================== -->
+    <section id="faq" class="space-y-6">
+      <div class="text-center space-y-2">
+        <span class="font-mono text-xs text-accentCyan uppercase">Questions & Answers</span>
+        <h2 class="text-3xl font-extrabold text-white">Frequently Asked Questions</h2>
+      </div>
+
+      <div class="space-y-3 max-w-3xl mx-auto">
+        <div class="glass-card rounded-xl overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full p-4 text-left font-semibold text-sm text-white flex justify-between items-center">
+            Do I need a Tohseno account?
+            <span class="text-accentCyan font-mono">+</span>
+          </button>
+          <div class="hidden p-4 pt-0 text-xs text-textMuted leading-relaxed border-t border-borderDark/50">
+            No. Tohseno is a peer-to-peer developer tool. You do not sign up or register anywhere.
+          </div>
+        </div>
+
+        <div class="glass-card rounded-xl overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full p-4 text-left font-semibold text-sm text-white flex justify-between items-center">
+            Is my source code public?
+            <span class="text-accentCyan font-mono">+</span>
+          </button>
+          <div class="hidden p-4 pt-0 text-xs text-textMuted leading-relaxed border-t border-borderDark/50">
+            By default, everything builds locally on your Mac. You choose whether or not to share your generated SwiftUI code.
+          </div>
+        </div>
+
+        <div class="glass-card rounded-xl overflow-hidden">
+          <button onclick="toggleFaq(this)" class="w-full p-4 text-left font-semibold text-sm text-white flex justify-between items-center">
+            How much does it cost?
+            <span class="text-accentCyan font-mono">+</span>
+          </button>
+          <div class="hidden p-4 pt-0 text-xs text-textMuted leading-relaxed border-t border-borderDark/50">
+            Tohseno core software is free and open-source.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== DOWNLOAD & CTA ==================== -->
+    <section id="download" class="glass-card p-12 rounded-3xl text-center space-y-6 border-2 border-accentOrange/30">
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white">Ready to build your personal software?</h2>
+      <p class="text-sm text-textMuted max-w-xl mx-auto">
+        Download the Mac desktop app and start building native iOS apps from simple text prompts in minutes.
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="https://github.com/jpfraneto/tohseno" target="_blank" class="px-8 py-4 rounded-xl bg-accentOrange hover:bg-orange-600 text-white font-bold text-sm transition-all shadow-xl glow-orange">
+          Download Mac App ↗
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== FLOATING AI ASSISTANT ==================== -->
+  <div class="fixed bottom-6 right-6 z-50">
+    <button onclick="toggleAiChat()" class="w-14 h-14 rounded-full bg-accentCyan text-black flex items-center justify-center shadow-2xl glow-cyan hover:scale-105 transition-transform">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+    </button>
+
+    <div id="aiChatWindow" class="hidden absolute bottom-18 right-0 w-80 sm:w-96 bg-cardBg border border-borderDark rounded-2xl shadow-2xl p-4 space-y-3">
+      <div class="flex justify-between items-center border-b border-borderDark pb-2">
+        <span class="font-mono text-xs text-accentCyan flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-accentCyan animate-pulse"></span>
+          Tohseno AI Assistant
+        </span>
+        <button onclick="toggleAiChat()" class="text-textMuted hover:text-white">✕</button>
+      </div>
+
+      <div id="chatMessages" class="h-48 overflow-y-auto space-y-2 font-mono text-xs">
+        <div class="p-2.5 rounded-lg bg-bgDark border border-borderDark text-textMuted">
+          Hello! I am Tohseno's knowledge assistant. Ask me anything about local installation, Xcode, or $TOHSENO.
+        </div>
+      </div>
+
+      <div class="flex gap-2">
+        <input type="text" id="chatInput" placeholder="Ask a question..." class="w-full bg-bgDark border border-borderDark rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none focus:border-accentCyan">
+        <button onclick="sendChatMessage()" class="px-3 py-1.5 rounded-lg bg-accentCyan text-black font-bold text-xs">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="border-t border-borderDark py-8 px-6 text-center text-xs text-textMuted font-mono space-y-2">
+    <p>© 2026 tohseno • A person-to-person software network.</p>
+    <p>Software belongs to its builders.</p>
+  </footer>
+
+  <!-- ==================== JAVASCRIPT ==================== -->
+  <script>
+    function toggleMenu() {
+      const drawer = document.getElementById('drawerMenu');
+      drawer.classList.toggle('drawer-open');
+    }
+
+    function toggleFaq(button) {
+      const content = button.nextElementSibling;
+      content.classList.toggle('hidden');
+    }
+
+    function toggleAiChat() {
+      const chat = document.getElementById('aiChatWindow');
+      chat.classList.toggle('hidden');
+    }
+
+    function sendChatMessage() {
+      const input = document.getElementById('chatInput');
+      const messages = document.getElementById('chatMessages');
+      if (!input.value.trim()) return;
+
+      const userMsg = document.createElement('div');
+      userMsg.className = 'p-2.5 rounded-lg bg-accentCyan/10 border border-accentCyan/20 text-white text-right';
+      userMsg.innerText = input.value;
+      messages.appendChild(userMsg);
+
+      const aiMsg = document.createElement('div');
+      aiMsg.className = 'p-2.5 rounded-lg bg-bgDark border border-borderDark text-accentCyan';
+      aiMsg.innerText = 'Tohseno compiles native SwiftUI apps locally on macOS 14+ using your free Personal Team ID.';
+      
+      setTimeout(() => {
+        messages.appendChild(aiMsg);
+        messages.scrollTop = messages.scrollHeight;
+      }, 500);
+
+      input.value = '';
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text);
+      alert('Contract address copied to clipboard!');
+    }
+
+    function simulateWallet() {
+      const text = document.getElementById('walletText');
+      const dot = document.getElementById('walletDot');
+      text.innerText = '0x71C...4f92';
+      dot.className = 'w-2 h-2 rounded-full bg-accentCyan';
+    }
+  </script>
+</body>
+</html>
